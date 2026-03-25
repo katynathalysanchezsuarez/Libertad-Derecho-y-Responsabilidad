@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libertad, Derecho y Responsabilidad</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --cream-dark: #ede6d6;
+    --ink: #1a1208;
+    --ink-light: #3d2f1a;
+    --gold: #8b6914;
+    --gold-light: #c9a84c;
+    --spine: #2c1810;
+    --shadow: rgba(0,0,0,0.45);
+    --page-shadow: rgba(0,0,0,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a0f08;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, #2d1a0e 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, #1f1208 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%231a0f08'/%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23221408' opacity='0.6'/%3E%3C/svg%3E");
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 40px 20px 60px;
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+  }
+
+  /* ── COVER ── */
+  #cover-screen {
+    position: fixed; inset: 0;
+    background: #0e0805;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  #cover-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .cover-book {
+    width: 320px;
+    background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 40%, #3a2010 100%);
+    border-radius: 4px 12px 12px 4px;
+    box-shadow: -8px 0 0 #1a0c06, -12px 4px 40px rgba(0,0,0,0.8), 20px 10px 60px rgba(0,0,0,0.7);
+    padding: 50px 36px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 440px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 6px solid #1a0c06;
+  }
+  .cover-book::before {
+    content: '';
+    position: absolute; inset: 12px;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 2px 8px 8px 2px;
+    pointer-events: none;
+  }
+  .cover-book::after {
+    content: '';
+    position: absolute; inset: 16px;
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 2px 6px 6px 2px;
+    pointer-events: none;
+  }
+  .cover-book:hover { transform: translateY(-6px) rotate(1deg); box-shadow: -8px 0 0 #1a0c06, -12px 8px 60px rgba(0,0,0,0.9), 30px 20px 80px rgba(0,0,0,0.7); }
+
+  .cover-ornament { color: var(--gold-light); font-size: 28px; margin-bottom: 20px; letter-spacing: 8px; opacity: 0.7; }
+  .cover-title {
+    font-family: 'Playfair Display', serif;
+    color: #e8d5a3;
+    font-size: 26px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .cover-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold-light);
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 30px;
+    opacity: 0.8;
+  }
+  .cover-divider {
+    width: 120px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-light), transparent);
+    margin: 16px auto;
+  }
+  .cover-author {
+    font-family: 'Cormorant Garamond', serif;
+    color: #c4aa7a;
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .cover-cta {
+    margin-top: 30px;
+    color: var(--gold-light);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.6;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+
+  /* ── BOOK WRAPPER ── */
+  .book-wrapper {
+    perspective: 2000px;
+    width: 100%;
+    max-width: 900px;
+    opacity: 0;
+    animation: fadeIn 1s ease 0.4s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* ── BOOK ── */
+  .book {
+    display: flex;
+    box-shadow: -12px 0 0 var(--spine), 0 30px 80px rgba(0,0,0,0.8), 60px 40px 100px rgba(0,0,0,0.5);
+    border-radius: 3px 8px 8px 3px;
+    transform: rotateY(-4deg);
+    transition: transform 0.6s ease;
+  }
+  .book:hover { transform: rotateY(0deg); }
+
+  /* ── SPINE ── */
+  .spine {
+    width: 36px;
+    min-height: 600px;
+    background: linear-gradient(to right, #1a0c06, #3a2010, #2c1810);
+    border-radius: 3px 0 0 3px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .spine-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-family: 'Cormorant Garamond', serif;
+    color: #c4aa7a;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .spine::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 20px; bottom: 20px;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.3), transparent);
+  }
+
+  /* ── PAGES CONTAINER ── */
+  .pages-container {
+    flex: 1;
+    background: var(--cream);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    border-radius: 0 8px 8px 0;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset -3px 0 8px rgba(0,0,0,0.1), inset 3px 0 6px rgba(0,0,0,0.05);
+  }
+
+  /* ── PAGE EDGE LINES ── */
+  .pages-container::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: repeating-linear-gradient(to bottom, var(--cream-dark) 0px, #e8dfc8 1px, var(--cream) 2px, var(--cream-dark) 3px);
+    opacity: 0.6;
+  }
+
+  /* ── TOP BAR ── */
+  .book-header {
+    background: linear-gradient(to bottom, #e8dfc8, var(--cream));
+    border-bottom: 1px solid rgba(139,105,20,0.2);
+    padding: 14px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .book-title-bar {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex; gap: 6px;
+  }
+  .nav-tab {
+    padding: 5px 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--ink-light);
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    transition: all 0.25s;
+    background: transparent;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { border-color: rgba(139,105,20,0.3); color: var(--gold); }
+  .nav-tab.active { background: var(--gold); color: var(--cream); border-color: var(--gold); }
+
+  /* ── PAGE CONTENT ── */
+  .page {
+    display: none;
+    padding: 50px 60px 60px;
+    min-height: 600px;
+    position: relative;
+    animation: pageFlip 0.4s ease;
+  }
+  .page.active { display: block; }
+
+  @keyframes pageFlip {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Ruled lines */
+  .page::after {
+    content: '';
+    position: absolute;
+    left: 60px; right: 60px; bottom: 0; top: 0;
+    background: repeating-linear-gradient(to bottom, transparent, transparent 31px, rgba(139,105,20,0.07) 31px, rgba(139,105,20,0.07) 32px);
+    pointer-events: none;
+  }
+
+  /* ── TABLE OF CONTENTS ── */
+  .toc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--ink);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .toc-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: var(--gold);
+    text-align: center;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+  .toc-ornament {
+    text-align: center;
+    color: var(--gold-light);
+    font-size: 22px;
+    margin: 20px 0;
+    opacity: 0.6;
+  }
+  .toc-divider {
+    width: 180px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 24px auto;
+  }
+  .toc-entry {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dotted rgba(139,105,20,0.25);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    color: var(--ink-light);
+    position: relative; z-index: 1;
+  }
+  .toc-entry:hover { color: var(--gold); padding-left: 8px; }
+  .toc-entry .toc-ch { font-style: italic; opacity: 0.7; font-size: 13px; margin-right: 10px; }
+  .toc-entry .toc-pg { font-size: 13px; opacity: 0.6; }
+  .toc-section-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 22px 0 6px;
+    opacity: 0.8;
+  }
+
+  /* ── CHAPTER PAGES ── */
+  .chapter-header {
+    text-align: center;
+    margin-bottom: 36px;
+    position: relative; z-index: 1;
+  }
+  .chapter-part {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .chapter-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--ink-light);
+    opacity: 0.75;
+  }
+
+  .drop-cap::first-letter {
+    font-family: 'Playfair Display', serif;
+    font-size: 68px;
+    font-weight: 900;
+    float: left;
+    line-height: 0.75;
+    margin: 6px 8px 0 0;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 rgba(139,105,20,0.15);
+  }
+
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--ink);
+    margin: 32px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(139,105,20,0.2);
+    position: relative; z-index: 1;
+  }
+  .section-num {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    font-size: 13px;
+    font-style: normal;
+    margin-right: 8px;
+    letter-spacing: 1px;
+  }
+
+  p {
+    font-family: 'EB Garamond', serif;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--ink);
+    text-align: justify;
+    margin-bottom: 18px;
+    position: relative; z-index: 1;
+    text-indent: 2em;
+  }
+  p:first-of-type { text-indent: 0; }
+  .drop-cap { text-indent: 0 !important; }
+
+  .pull-quote {
+    margin: 30px 0;
+    padding: 20px 30px;
+    border-left: 3px solid var(--gold);
+    border-right: 3px solid var(--gold);
+    background: rgba(139,105,20,0.05);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--ink-light);
+    text-align: center;
+    line-height: 1.5;
+    position: relative; z-index: 1;
+    text-indent: 0;
+  }
+  .pull-quote::before { content: '\201C'; font-size: 50px; line-height: 0; vertical-align: -18px; color: var(--gold); opacity: 0.4; margin-right: 4px; }
+  .pull-quote::after  { content: '\201D'; font-size: 50px; line-height: 0; vertical-align: -18px; color: var(--gold); opacity: 0.4; margin-left: 4px; }
+
+  /* ── PAGE FOOTER ── */
+  .page-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 60px 20px;
+    border-top: 1px solid rgba(139,105,20,0.15);
+    background: linear-gradient(to top, var(--cream-dark), var(--cream));
+  }
+  .page-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+  .page-nav-btns { display: flex; gap: 12px; }
+  .page-btn {
+    background: none;
+    border: 1px solid rgba(139,105,20,0.35);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 5px 16px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .page-btn:hover { background: var(--gold); color: var(--cream); }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .chapter-indicator {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    color: var(--ink-light);
+    opacity: 0.55;
+    font-style: italic;
+  }
+
+  /* ── BOOKMARK ── */
+  .bookmark {
+    position: absolute;
+    top: 0; right: 40px;
+    width: 24px; height: 50px;
+    background: linear-gradient(to bottom, #8b1c1c, #6b1414);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: height 0.2s;
+    z-index: 10;
+  }
+  .bookmark:hover { height: 60px; }
+
+  /* ── ANNOTATIONS ── */
+  .annotation {
+    position: absolute;
+    right: 8px;
+    background: rgba(255,240,150,0.85);
+    border: 1px solid rgba(180,150,0,0.3);
+    padding: 6px 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-style: italic;
+    color: #5a4000;
+    width: 110px;
+    transform: rotate(1.5deg);
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+    line-height: 1.4;
+    z-index: 20;
+  }
+
+  /* ── ORNAMENTAL DIVIDER ── */
+  .orn-div {
+    text-align: center;
+    color: var(--gold);
+    font-size: 18px;
+    opacity: 0.5;
+    margin: 24px 0 20px;
+    letter-spacing: 6px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    height: 3px;
+    background: rgba(139,105,20,0.15);
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--gold-light), var(--gold));
+    transition: width 0.4s ease;
+  }
+
+  /* ── TOOLTIP ── */
+  .book-info {
+    text-align: center;
+    margin-top: 18px;
+    color: rgba(200,180,140,0.45);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  /* ── END ORNAMENT ── */
+  .end-page {
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .finis {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-style: italic;
+    color: var(--gold);
+    opacity: 0.6;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 680px) {
+    .page { padding: 30px 30px 40px; }
+    .page-footer { padding: 14px 30px 16px; }
+    .page::after { left: 30px; right: 30px; }
+    .book-header { padding: 12px 20px; }
+    .chapter-title { font-size: 22px; }
+    p { font-size: 15px; }
+    .spine { width: 24px; }
+    .cover-book { width: 260px; min-height: 380px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER SCREEN -->
+<div id="cover-screen">
+  <div style="text-align:center">
+    <div class="cover-book" onclick="openBook()">
+      <div class="cover-ornament">✦ ✦ ✦</div>
+      <div class="cover-title">Libertad,<br>Derecho<br>y Responsabilidad</div>
+      <div class="cover-divider"></div>
+      <div class="cover-subtitle">Trabajo Académico</div>
+      <div class="cover-author">con síntesis de<br><em>Nelson Mandela</em></div>
+      <div class="cover-cta">— Toca para abrir —</div>
+    </div>
+    <div style="margin-top:20px; color:rgba(180,150,100,0.4); font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:3px;">DERECHO Y SOCIEDAD</div>
+  </div>
+</div>
+
+<!-- BOOK -->
+<div class="book-wrapper">
+  <div class="book">
+
+    <!-- SPINE -->
+    <div class="spine">
+      <span class="spine-text">Libertad · Derecho · Responsabilidad</span>
+    </div>
+
+    <!-- PAGES -->
+    <div class="pages-container" style="width:100%">
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress" style="width:14%"></div>
+      </div>
+
+      <div class="book-header">
+        <span class="book-title-bar">Derecho &amp; Sociedad</span>
+        <div class="nav-tabs">
+          <button class="nav-tab active" onclick="goTo(0)">Índice</button>
+          <button class="nav-tab" onclick="goTo(1)">Parte I</button>
+          <button class="nav-tab" onclick="goTo(2)">Parte II</button>
+          <button class="nav-tab" onclick="goTo(3)">Síntesis</button>
+          <button class="nav-tab" onclick="goTo(4)">Fin</button>
+        </div>
+      </div>
+
+      <!-- PAGE 0: TABLE OF CONTENTS -->
+      <div class="page active" id="page-0">
+        <div class="bookmark" title="Marcador"></div>
+        <div class="toc-title">Índice</div>
+        <div class="toc-subtitle">Tabla de contenidos</div>
+        <div class="toc-ornament">❧</div>
+        <div class="toc-divider"></div>
+
+        <div class="toc-section-label">Parte Primera</div>
+        <div class="toc-entry" onclick="goTo(1)">
+          <span><span class="toc-ch">Cap. I</span> La libertad entendida desde el derecho</span>
+          <span class="toc-pg">2</span>
+        </div>
+        <div class="toc-entry" onclick="goTo(1)">
+          <span><span class="toc-ch">Cap. II</span> Libertad, derecho y responsabilidad</span>
+          <span class="toc-pg">3</span>
+        </div>
+
+        <div class="toc-section-label">Parte Segunda</div>
+        <div class="toc-entry" onclick="goTo(2)">
+          <span><span class="toc-ch">Cap. III</span> El largo camino hacia la libertad</span>
+          <span class="toc-pg">4</span>
+        </div>
+        <div class="toc-entry" onclick="goTo(3)">
+          <span><span class="toc-ch">Cap. IV</span> El discurso de Mandela — Reflexión</span>
+          <span class="toc-pg">5</span>
+        </div>
+
+        <div class="toc-divider"></div>
+        <div class="toc-ornament" style="margin-top:30px; font-size:15px; letter-spacing:6px;">✦ &nbsp; ✦ &nbsp; ✦</div>
+        <p style="text-align:center; font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:var(--gold); opacity:0.7; text-indent:0; margin-top:16px;">"La ley no es la ley si no da a todos protección igual."<br><span style="font-size:12px; opacity:0.6;">— Nelson Mandela</span></p>
+      </div>
+
+      <!-- PAGE 1: PARTE I -->
+      <div class="page" id="page-1">
+        <div class="annotation" style="top:60px">La libertad jurídica ≠ libertad absoluta</div>
+        <div class="chapter-header">
+          <div class="chapter-part">Parte Primera</div>
+          <div class="chapter-title">Libertad, Derecho<br>y Responsabilidad</div>
+          <div class="chapter-subtitle">Una reflexión filosófico-jurídica</div>
+        </div>
+        <div class="toc-divider"></div>
+
+        <div class="section-heading"><span class="section-num">I.</span> La libertad entendida desde el derecho</div>
+        <p class="drop-cap">La libertad es uno de los valores fundamentales de todo sistema jurídico. Desde la perspectiva del derecho, la libertad no es simplemente la ausencia de obstáculos físicos o la posibilidad de actuar sin restricción alguna; es, ante todo, una capacidad reconocida y garantizada por el orden normativo. El derecho otorga a la libertad su dimensión social y política, transformándola de un concepto filosófico abstracto en una realidad concreta y exigible.</p>
+        <p>En el ámbito jurídico, la libertad se expresa a través de derechos subjetivos: el derecho a la libre expresión, a la libre circulación, a la libre asociación, a la libertad de conciencia, entre otros. Estos derechos constituyen un espacio protegido en el que el Estado y los demás particulares no pueden interferir sin justificación legítima. De este modo, el derecho actúa como una garantía de la libertad individual frente al poder.</p>
+        <p>Sin embargo, el derecho no solo protege la libertad: también la delimita. Toda sociedad organizada reconoce que la libertad de uno termina donde comienza la del otro. Esta tensión entre libertad individual y convivencia social es resuelta, precisamente, por el ordenamiento jurídico, que establece los límites dentro de los cuales cada persona puede ejercer su autonomía sin vulnerar la de los demás.</p>
+
+        <div class="pull-quote">La libertad jurídica es siempre una libertad regulada, no suprimida.</div>
+
+        <p>Las normas que la limitan no la niegan, sino que la hacen posible en el seno de la comunidad. En palabras del filósofo del derecho John Rawls, la libertad de cada uno es compatible con la libertad de todos cuando está ordenada por principios de justicia acordados de manera equitativa.</p>
+      </div>
+
+      <!-- PAGE 2: PARTE I – CAP II -->
+      <div class="page" id="page-2">
+        <div class="annotation" style="top:120px; transform:rotate(-1.2deg)">Kant: autonomía + deber</div>
+        <div class="chapter-header">
+          <div class="chapter-part">Parte Primera · Capítulo II</div>
+          <div class="chapter-title">La tríada esencial</div>
+        </div>
+
+        <div class="section-heading"><span class="section-num">II.</span> Relación entre libertad, derecho y responsabilidad</div>
+        <p class="drop-cap">La tríada libertad-derecho-responsabilidad constituye uno de los ejes conceptuales más importantes del pensamiento jurídico. Estos tres elementos no son independientes entre sí; forman un sistema de implicaciones recíprocas sin el cual ninguno adquiere su pleno significado.</p>
+        <p>La libertad, tal como se ha señalado, es reconocida y garantizada por el derecho. Pero este reconocimiento lleva aparejada, de manera necesaria, la noción de responsabilidad. Quien actúa libremente es, al mismo tiempo, responsable de sus actos. La responsabilidad es la consecuencia lógica de la libertad: si soy libre de actuar, debo responder por las consecuencias de mis acciones.</p>
+        <p>En el plano jurídico, la responsabilidad se manifiesta de distintas formas: responsabilidad civil, cuando los actos de una persona causan daño a otra y surge la obligación de repararlo; responsabilidad penal, cuando la conducta lesiona bienes jurídicos protegidos por la sociedad; y responsabilidad administrativa, cuando el ejercicio de una función pública genera obligaciones específicas.</p>
+        <p>Esta relación puede comprenderse también desde la ética kantiana: actuar moralmente implica actuar conforme a una ley que uno mismo se da, reconociendo que los demás también son seres libres y racionales. El derecho recoge este principio al establecer que la autonomía de la voluntad va acompañada de deberes que hacen posible la vida en comunidad.</p>
+
+        <div class="orn-div">— ✦ —</div>
+        <div class="pull-quote">Libertad sin responsabilidad degenera en arbitrariedad; responsabilidad sin libertad se convierte en coacción.</div>
+      </div>
+
+      <!-- PAGE 3: PARTE II -->
+      <div class="page" id="page-3">
+        <div class="annotation" style="top:80px; transform:rotate(1deg)">Mandela: abogado<br>y estadista</div>
+        <div class="chapter-header">
+          <div class="chapter-part">Parte Segunda</div>
+          <div class="chapter-title">El largo camino<br>hacia la libertad</div>
+          <div class="chapter-subtitle">Síntesis — Nelson Mandela, 1994</div>
+        </div>
+        <div class="toc-divider"></div>
+
+        <div class="section-heading"><span class="section-num">I.</span> Síntesis del libro</div>
+        <p class="drop-cap">La autobiografía de Nelson Mandela es uno de los testimonios más poderosos del siglo XX sobre la lucha por los derechos humanos, la dignidad y la justicia. En ella, Mandela narra su vida desde su infancia en una aldea rural del Transkei, en Sudáfrica, hasta su liberación en 1990 tras 27 años de prisión, y su posterior elección como primer presidente negro de su país en 1994.</p>
+        <p>La obra describe con profundidad la realidad del apartheid, el sistema de segregación racial institucionalizado que privaba a la población negra de derechos civiles, políticos y económicos fundamentales. Mandela narra cómo tomó conciencia de esta injusticia, cómo se involucró en el Congreso Nacional Africano y cómo, ante la represión sistemática del Estado, llegó a concluir que la lucha organizada era inevitable para defender la dignidad de su pueblo.</p>
+        <p>Uno de los aspectos más relevantes del libro es la reflexión de Mandela sobre la naturaleza misma de la libertad. Para él, la libertad individual no puede existir sin la libertad colectiva: no se puede ser libre en una sociedad injusta. Esta idea conecta directamente con el principio jurídico de que los derechos humanos son universales, indivisibles e interdependientes.</p>
+
+        <div class="pull-quote">No era libre mientras mi pueblo no lo fuera.<br><span style="font-size:14px; opacity:0.7; font-style:normal; letter-spacing:1px;">— Nelson Mandela</span></div>
+
+        <p>Durante los 27 años en Robben Island, Mandela no abandonó su convicción de que el diálogo y la justicia debían prevalecer sobre el odio. Esta postura ilustra la relación entre libertad y responsabilidad: el ejercicio responsable de la libertad implica renunciar a la venganza y construir instituciones que garanticen los derechos de todos.</p>
+      </div>
+
+      <!-- PAGE 4: SÍNTESIS VIDEO -->
+      <div class="page" id="page-4">
+        <div class="chapter-header">
+          <div class="chapter-part">Parte Segunda · Capítulo IV</div>
+          <div class="chapter-title">Reflexión sobre<br>el discurso</div>
+          <div class="chapter-subtitle">Nelson Mandela — Libertad y dignidad</div>
+        </div>
+
+        <div class="section-heading"><span class="section-num">II.</span> El discurso de Nelson Mandela</div>
+        <p class="drop-cap">En numerosos discursos y entrevistas, Mandela sintetizó su concepción de la libertad. Señaló que no era libre mientras su pueblo no lo fuera, y que la libertad de los opresores también era incompleta, pues el odio y el miedo encadenan tanto al opresor como al oprimido. Esta visión dialéctica de la libertad tiene profundas implicaciones jurídicas y éticas.</p>
+        <p>Mandela argumentaba que una sociedad verdaderamente libre no puede construirse sobre la exclusión, la discriminación ni la impunidad. La libertad, en su concepción, es inseparable de la justicia, y la justicia exige un ordenamiento jurídico que trate a todos los seres humanos con igual dignidad y sin discriminación alguna.</p>
+        <p>El libro es también un tratado implícito sobre el Estado de derecho. Mandela, abogado de profesión, creía en el poder del derecho para transformar la sociedad. Su lucha no era contra el derecho como tal, sino contra un derecho injusto que legitimaba la opresión. Cuando triunfó, no buscó imponer un régimen autoritario, sino construir un orden constitucional basado en la igualdad.</p>
+
+        <div class="pull-quote">El derecho tiene la responsabilidad de ser instrumento de emancipación, y no de opresión.</div>
+
+        <p>El mensaje de Mandela trasciende las fronteras de Sudáfrica. En un mundo donde persisten diversas formas de discriminación y desigualdad, su legado nos recuerda que ser libre, en el sentido más pleno, implica comprometerse con la libertad de los demás: esa es la síntesis más poderosa de la relación entre libertad, derecho y responsabilidad.</p>
+      </div>
+
+      <!-- PAGE 5: END -->
+      <div class="page" id="page-5">
+        <div class="end-page">
+          <div class="toc-ornament" style="font-size:32px; opacity:0.4; letter-spacing:12px; margin-bottom:30px;">✦ ✦ ✦</div>
+          <div class="finis">Finis</div>
+          <div class="toc-divider"></div>
+          <p style="text-indent:0; font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; color:var(--ink-light); line-height:1.8; margin-top:24px;">
+            "La educación es el arma más poderosa<br>que puedes usar para cambiar el mundo."
+          </p>
+          <p style="text-indent:0; font-family:'Cormorant Garamond',serif; font-size:13px; color:var(--gold); letter-spacing:2px; margin-top:4px;">— Nelson Mandela</p>
+
+          <div style="margin-top:48px;">
+            <div style="font-family:'Cormorant Garamond',serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:var(--gold); opacity:0.5; margin-bottom:10px;">Derecho y Sociedad</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:12px; color:var(--ink-light); opacity:0.4; font-style:italic;">Trabajo Académico</div>
+          </div>
+
+          <div class="toc-ornament" style="font-size:15px; margin-top:50px; opacity:0.3; letter-spacing:8px;">✦ &nbsp; ✦ &nbsp; ✦</div>
+          <button onclick="goTo(0)" style="margin-top:30px; background:none; border:1px solid rgba(139,105,20,0.3); color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:3px; padding:8px 24px; cursor:pointer; border-radius:2px; transition:all 0.2s;" onmouseover="this.style.background='var(--gold)';this.style.color='var(--cream)'" onmouseout="this.style.background='none';this.style.color='var(--gold)'">↩ Volver al índice</button>
+        </div>
+      </div>
+
+      <!-- PAGE FOOTER -->
+      <div class="page-footer">
+        <span class="page-num" id="pg-num">— i —</span>
+        <div class="page-nav-btns">
+          <button class="page-btn" id="btn-prev" onclick="prevPage()" disabled>◂ Anterior</button>
+          <button class="page-btn" id="btn-next" onclick="nextPage()">Siguiente ▸</button>
+        </div>
+        <span class="chapter-indicator" id="ch-ind">Índice</span>
+      </div>
+
+    </div><!-- /pages-container -->
+  </div><!-- /book -->
+</div><!-- /book-wrapper -->
+
+<div class="book-info">Usa las flechas o el índice para navegar · Haz clic en la portada para comenzar</div>
+
+<script>
+const pages = [
+  { num: "i",   ch: "Índice" },
+  { num: "1",   ch: "Parte I · Cap. I" },
+  { num: "2",   ch: "Parte I · Cap. II" },
+  { num: "3",   ch: "Parte II · Cap. III" },
+  { num: "4",   ch: "Parte II · Cap. IV" },
+  { num: "—",   ch: "Fin" },
+];
+
+let current = 0;
+
+function goTo(n) {
+  document.getElementById('page-' + current).classList.remove('active');
+  document.querySelectorAll('.nav-tab')[n < 4 ? n : 4].classList.remove('active');
+  current = n;
+  document.getElementById('page-' + current).classList.add('active');
+  const tabIdx = n === 0 ? 0 : n <= 2 ? 1 : n <= 3 ? 2 : n <= 4 ? 3 : 4;
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', i === tabIdx));
+  document.getElementById('pg-num').textContent = '— ' + pages[n].num + ' —';
+  document.getElementById('ch-ind').textContent = pages[n].ch;
+  document.getElementById('btn-prev').disabled = n === 0;
+  document.getElementById('btn-next').disabled = n === pages.length - 1;
+  document.getElementById('progress').style.width = ((n / (pages.length - 1)) * 100) + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextPage() { if (current < pages.length - 1) goTo(current + 1); }
+function prevPage() { if (current > 0) goTo(current - 1); }
+
+function openBook() {
+  document.getElementById('cover-screen').classList.add('hidden');
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextPage();
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevPage();
+});
+
+// Hide nav tabs for page 5 (end)
+document.querySelectorAll('.nav-tab')[4].addEventListener('click', () => goTo(5));
+</script>
+</body>
+</html>
